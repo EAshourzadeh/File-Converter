@@ -609,19 +609,6 @@
         }
       };
 
-      // Prevent context menu (right-click) for general layout elements
-      document.addEventListener("contextmenu", (e) => {
-        const target = e.target;
-        const isInput =
-          target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.isContentEditable;
-
-        if (!isInput) {
-          e.preventDefault();
-        }
-      });
-
       function setItemStatus(it, text, cls = "") {
         it.status.textContent = text;
         it.status.className = cls;
@@ -654,6 +641,10 @@
       }
 
       function updateControlVisibility() {
+        imgSelect.disabled = busy;
+        maxDimSelect.disabled = busy;
+        audSelect.disabled = busy;
+
         const png = imgSelect.value === "png";
         quality.disabled = png || busy;
         $("#qbox").style.opacity = png ? "0.5" : "1";
