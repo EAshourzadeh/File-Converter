@@ -229,7 +229,7 @@
       }
       input[type="range"] {
         padding: 0;
-        width: 150px;
+        width: 130px;
       }
       input[type="range"]:disabled {
         opacity: 0.45;
@@ -493,6 +493,15 @@
                   <option value="jpeg">JPEG</option>
                 </select>
               </div>
+              <div class="field" id="maxDimBox">
+                <label for="maxDim">Max px</label>
+                <select id="maxDim">
+                  <option value="0" selected>Original</option>
+                  <option value="1920">1920px</option>
+                  <option value="1280">1280px</option>
+                  <option value="800">800px</option>
+                </select>
+              </div>
               <div class="field" id="qbox">
                 <label for="q">Quality</label>
                 <input id="q" type="range" min="40" max="100" value="90" />
@@ -564,6 +573,7 @@
       const empty = $("#empty");
       const live = $("#live");
       const imgSelect = $("#img");
+      const maxDimSelect = $("#maxDim");
       const audSelect = $("#aud");
       const quality = $("#q");
       const bitrate = $("#bitrate");
@@ -598,6 +608,19 @@
           it.url = null;
         }
       };
+
+      // Prevent context menu (right-click) for general layout elements
+      document.addEventListener("contextmenu", (e) => {
+        const target = e.target;
+        const isInput =
+          target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable;
+
+        if (!isInput) {
+          e.preventDefault();
+        }
+      });
 
       function setItemStatus(it, text, cls = "") {
         it.status.textContent = text;
@@ -649,7 +672,7 @@
           audioHint.classList.add("warning");
         } else {
           audioHint.textContent = mp3
-            ? "MP3 uses the lamejs encoder loaded from cdnjs; files themselves stay on your device."
+            ? "MP3 uses the lamejs encoder loaded from cdnjs; files stay on your device."
             : "WAV conversion is fully handled by your browser.";
           audioHint.classList.remove("warning");
         }
@@ -788,6 +811,7 @@
         invalidateOutputs();
         updateControlVisibility();
       };
+      maxDimSelect.onchange = invalidateOutputs;
       audSelect.onchange = () => {
         invalidateOutputs();
         updateControlVisibility();
@@ -833,15 +857,36 @@
         return new Blob([ab], { type: "audio/wav" });
       }
 
-      function toMp3(buf) {
+      async function resampleBuffer(buf, targetSampleRate = 44100) {
+        if (buf.sampleRate === targetSampleRate) return buf;
+        const offlineCtx = new OfflineAudioContext(
+          buf.numberOfChannels,
+          Math.ceil(buf.duration * targetSampleRate),
+          targetSampleRate,
+        );
+        const source = offlineCtx.createBufferSource();
+        source.buffer = buf;
+        source.connect(offlineCtx.destination);
+        source.start(0);
+        return await offlineCtx.startRendering();
+      }
+
+      async function toMp3(buf) {
         if (!window.lamejs)
           throw new Error(
             "MP3 encoder unavailable. Check your connection or choose WAV.",
           );
 
-        const ch = Math.min(2, buf.numberOfChannels);
+        // Resample if necessary to keep sample rates valid for lamejs
+        const validRates = [16000, 22050, 24000, 32000, 44100, 48000];
+        let workBuf = buf;
+        if (!validRates.includes(buf.sampleRate)) {
+          workBuf = await resampleBuffer(buf, 44100);
+        }
+
+        const ch = Math.min(2, workBuf.numberOfChannels);
         const kbps = Number(bitrate.value);
-        const enc = new lamejs.Mp3Encoder(ch, buf.sampleRate, kbps);
+        const enc = new lamejs.Mp3Encoder(ch, workBuf.sampleRate, kbps);
 
         const to16 = (a) => {
           const out = new Int16Array(a.length);
@@ -852,8 +897,8 @@
           return out;
         };
 
-        const L = to16(buf.getChannelData(0));
-        const R = ch > 1 ? to16(buf.getChannelData(1)) : null;
+        const L = to16(workBuf.getChannelData(0));
+        const R = ch > 1 ? to16(workBuf.getChannelData(1)) : null;
         const out = [];
 
         for (let i = 0; i < L.length; i += 1152) {
@@ -876,17 +921,34 @@
         if (file.type.startsWith("image/")) {
           const fmt = imgSelect.value;
           const q = Number(quality.value) / 100;
-          const bmp = await createImageBitmap(file);
+          const maxDim = Number(maxDimSelect.value);
+
+          const bmp = await createImageBitmap(file, {
+            imageOrientation: "from-image",
+          });
+          let w = bmp.width;
+          let h = bmp.height;
+
+          if (maxDim > 0 && (w > maxDim || h > maxDim)) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+
           const canvas = document.createElement("canvas");
-          canvas.width = bmp.width;
-          canvas.height = bmp.height;
+          canvas.width = w;
+          canvas.height = h;
           const ctx = canvas.getContext("2d");
 
           if (fmt === "jpeg") {
             ctx.fillStyle = "#fff";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
           }
-          ctx.drawImage(bmp, 0, 0);
+          ctx.drawImage(bmp, 0, 0, w, h);
           bmp.close?.();
 
           const type = `image/${fmt}`;
@@ -907,7 +969,7 @@
         try {
           const buf = await ctx.decodeAudioData(await file.arrayBuffer());
           return audSelect.value === "mp3"
-            ? [toMp3(buf), "mp3"]
+            ? [await toMp3(buf), "mp3"]
             : [toWav(buf), "wav"];
         } finally {
           await ctx.close().catch(() => {});
