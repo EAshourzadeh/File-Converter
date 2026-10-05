@@ -15,7 +15,7 @@ h1{margin:0 0 4px;font-size:1.6rem}
 #drop{display:block;padding:36px 16px;text-align:center;border:2px dashed var(--line);border-radius:12px;background:var(--card);cursor:pointer}
 #drop.over{border-color:var(--acc)}
 .opts{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;margin:16px 0}
-select,button{font:inherit;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
+select,button,input[type="range"]{font:inherit;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
 button{background:var(--acc);color:#fff;border:0;padding:8px 18px;cursor:pointer}
 button:disabled{opacity:.5;cursor:default}
 button.sec{background:var(--card);color:var(--fg);border:1px solid var(--line)}
@@ -25,7 +25,9 @@ li .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 li small{color:var(--mute)}
 a{color:var(--acc)}
 .err{color:#dc2626}
-.x{background:none;color:var(--mute);padding:0 6px;font-size:1.2rem}
+.x{background:none;color:var(--mute);padding:0 6px;font-size:1.2rem;border:none;cursor:pointer}
+.q-wrap{display:inline-flex;align-items:center;gap:6px}
+.q-wrap.dim{opacity:0.4;pointer-events:none}
 </style>
 </head>
 <body>
@@ -39,14 +41,18 @@ a{color:var(--acc)}
 
   <div class="opts">
     <label>Images to
-      <select id="img"><option>webp</option><option>png</option><option>jpeg</option></select>
+      <select id="img"><option value="webp">webp</option><option value="png">png</option><option value="jpeg">jpeg</option></select>
     </label>
     <label>Audio to
-      <select id="aud"><option>wav</option><option>mp3</option></select>
+      <select id="aud"><option value="wav">wav</option><option value="mp3">mp3</option></select>
     </label>
-    <label>Image quality
-      <input id="q" type="range" min="40" max="100" value="90"> <span id="qv">90</span>%
-    </label>
+
+    <span id="qbox" class="q-wrap">
+      <label for="q">Quality</label>
+      <input id="q" type="range" min="40" max="100" value="90">
+      <span id="qv">90</span>%
+    </span>
+
     <button id="go" disabled>Convert</button>
     <button id="dl" class="sec" disabled>Download all</button>
     <button id="clr" class="sec" disabled>Clear</button>
@@ -58,16 +64,22 @@ a{color:var(--acc)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
 <script>
 const $ = s => document.querySelector(s);
-const drop = $('#drop'), inp = $('#f'), list = $('#list'), go = $('#go');
+const drop = $('#drop'), inp = $('#f'), list = $('#list'), go = $('#go'), clr = $('#clr'), dl = $('#dl');
 let items = [];
-const clr = $('#clr'), dl = $('#dl');
+
 function refresh() {
   go.disabled = !items.length;
   clr.disabled = !items.length;
   dl.disabled = !items.some(i => i.out);
 }
 
+const updateQualityVisibility = () => {
+  const isPng = $('#img').value === 'png';
+  $('#qbox').classList.toggle('dim', isPng);
+};
+$('#img').onchange = updateQualityVisibility;
 $('#q').oninput = e => $('#qv').textContent = e.target.value;
+updateQualityVisibility();
 
 function add(fs) {
   [...fs].filter(f => /^(image|audio)\//.test(f.type)).forEach(file => {
@@ -76,12 +88,18 @@ function add(fs) {
     li.innerHTML = `<span class="n"></span><small>${kb} KB</small><span class="st"></span><button class="x" title="Remove">×</button>`;
     li.querySelector('.n').textContent = file.name;
     const it = { file, li };
-    li.querySelector('.x').onclick = () => { if (it.url) URL.revokeObjectURL(it.url); items = items.filter(i => i !== it); li.remove(); refresh(); };
+    li.querySelector('.x').onclick = () => {
+      if (it.url) URL.revokeObjectURL(it.url);
+      items = items.filter(i => i !== it);
+      li.remove();
+      refresh();
+    };
     list.appendChild(li);
     items.push(it);
   });
   refresh();
 }
+
 inp.onchange = e => { add(e.target.files); inp.value = ''; };
 ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
 ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => {
@@ -108,16 +126,24 @@ function toWav(buf) {
 }
 
 function toMp3(buf) {
-  if (!window.lamejs) throw new Error('MP3 encoder failed to load (offline?)');
+  if (!window.lamejs) throw new Error('MP3 encoder unavailable (check connection)');
   const ch = Math.min(2, buf.numberOfChannels);
   const enc = new lamejs.Mp3Encoder(ch, buf.sampleRate, 128);
-  const to16 = a => { const o = new Int16Array(a.length); for (let i = 0; i < a.length; i++) { const x = Math.max(-1, Math.min(1, a[i])); o[i] = x < 0 ? x * 0x8000 : x * 0x7fff; } return o; };
+  const to16 = a => {
+    const o = new Int16Array(a.length);
+    for (let i = 0; i < a.length; i++) {
+      const x = Math.max(-1, Math.min(1, a[i]));
+      o[i] = x < 0 ? x * 0x8000 : x * 0x7fff;
+    }
+    return o;
+  };
   const L = to16(buf.getChannelData(0)), R = ch > 1 ? to16(buf.getChannelData(1)) : null, out = [];
   for (let i = 0; i < L.length; i += 1152) {
     const p = ch > 1 ? enc.encodeBuffer(L.subarray(i, i + 1152), R.subarray(i, i + 1152)) : enc.encodeBuffer(L.subarray(i, i + 1152));
-    if (p.length) out.push(p);
+    if (p.length > 0) out.push(p);
   }
-  const e = enc.flush(); if (e.length) out.push(e);
+  const e = enc.flush();
+  if (e.length > 0) out.push(e);
   return new Blob(out, { type: 'audio/mpeg' });
 }
 
@@ -133,7 +159,7 @@ async function convert(f) {
     if (!b || b.type !== 'image/' + fmt) throw new Error(fmt + ' not supported in this browser');
     return [b, fmt === 'jpeg' ? 'jpg' : fmt];
   }
-  const ctx = new AudioContext();
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
   try {
     const buf = await ctx.decodeAudioData(await f.arrayBuffer());
     return $('#aud').value === 'mp3' ? [toMp3(buf), 'mp3'] : [toWav(buf), 'wav'];
@@ -142,13 +168,23 @@ async function convert(f) {
 
 go.onclick = async () => {
   go.disabled = true; clr.disabled = true; dl.disabled = true;
+  const usedNames = new Set();
+
   for (const it of items) {
     const st = it.li.querySelector('.st');
     st.className = 'st'; st.textContent = 'Converting…';
     try {
       const [blob, ext] = await convert(it.file);
       if (it.url) URL.revokeObjectURL(it.url);
-      const outName = it.file.name.replace(/\.[^.]+$/, '') + '.' + ext;
+
+      let baseName = it.file.name.replace(/\.[^.]+$/, '');
+      let outName = `${baseName}.${ext}`;
+      let counter = 1;
+      while (usedNames.has(outName)) {
+        outName = `${baseName} (${counter++}).${ext}`;
+      }
+      usedNames.add(outName);
+
       it.out = { blob, name: outName };
       const a = document.createElement('a');
       a.href = it.url = URL.createObjectURL(blob);
@@ -177,7 +213,6 @@ function save(blob, name) {
   setTimeout(() => URL.revokeObjectURL(a.href), 10000);
 }
 
-// Minimal ZIP writer (stored, no compression: images/audio are already compressed)
 const crcT = (() => {
   const t = new Uint32Array(256);
   for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; }
@@ -217,13 +252,7 @@ dl.onclick = async () => {
   if (done.length === 1) return save(done[0].out.blob, done[0].out.name);
   dl.disabled = true;
   try {
-    const used = new Set();
-    const files = done.map(i => {
-      let n = i.out.name, k = 1;
-      while (used.has(n)) { k++; n = i.out.name.replace(/(\.[^.]+)$/, ` (${k})$1`); }
-      used.add(n);
-      return { name: n, blob: i.out.blob };
-    });
+    const files = done.map(i => ({ name: i.out.name, blob: i.out.blob }));
     save(await makeZip(files), 'converted-files.zip');
   } finally { refresh(); }
 };
