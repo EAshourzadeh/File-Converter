@@ -45,17 +45,32 @@
         }
       }
 
-      * { box-sizing: border-box; }
+      * {
+        box-sizing: border-box;
+      }
 
       body {
         margin: 0;
         background: var(--bg);
         color: var(--fg);
-        font: 15px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font:
+          15px/1.5 system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
       }
 
-      button, select, input { font: inherit; }
-      button, select, input[type="range"] { accent-color: var(--acc); }
+      button,
+      select,
+      input {
+        font: inherit;
+      }
+      button,
+      select,
+      input[type="range"] {
+        accent-color: var(--acc);
+      }
 
       main {
         width: min(920px, calc(100% - 32px));
@@ -115,16 +130,22 @@
         background: var(--card);
         cursor: pointer;
         text-align: center;
-        transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+        transition:
+          border-color 0.15s ease,
+          transform 0.15s ease,
+          background 0.15s ease;
         box-shadow: var(--shadow);
       }
 
-      #drop:hover, #drop.over {
+      #drop:hover,
+      #drop.over {
         border-color: var(--acc);
         background: var(--acc-soft);
       }
 
-      #drop.over { transform: translateY(-1px); }
+      #drop.over {
+        transform: translateY(-1px);
+      }
 
       .drop-icon {
         display: grid;
@@ -139,8 +160,15 @@
         font-weight: 700;
       }
 
-      .drop-title { font-weight: 700; font-size: 1.03rem; }
-      .drop-help { margin-top: 4px; color: var(--mute); font-size: 0.9rem; }
+      .drop-title {
+        font-weight: 700;
+        font-size: 1.03rem;
+      }
+      .drop-help {
+        margin-top: 4px;
+        color: var(--mute);
+        font-size: 0.9rem;
+      }
 
       .panel {
         margin-top: 18px;
@@ -181,9 +209,14 @@
         gap: 8px;
       }
 
-      .field label, .field-label { color: var(--mute); font-size: 0.88rem; }
+      .field label,
+      .field-label {
+        color: var(--mute);
+        font-size: 0.88rem;
+      }
 
-      select, input[type="range"] {
+      select,
+      input[type="range"] {
         min-height: 36px;
         border: 1px solid var(--line-strong);
         border-radius: 9px;
@@ -191,9 +224,17 @@
         color: var(--fg);
       }
 
-      select { padding: 6px 28px 6px 9px; }
-      input[type="range"] { padding: 0; width: 150px; }
-      input[type="range"]:disabled { opacity: 0.45; cursor: not-allowed; }
+      select {
+        padding: 6px 28px 6px 9px;
+      }
+      input[type="range"] {
+        padding: 0;
+        width: 150px;
+      }
+      input[type="range"]:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
 
       .quality-value {
         min-width: 42px;
@@ -207,7 +248,9 @@
         font-size: 0.82rem;
       }
 
-      .hint.warning { color: var(--warn); }
+      .hint.warning {
+        color: var(--warn);
+      }
 
       .actions {
         display: flex;
@@ -227,8 +270,13 @@
         font-weight: 650;
       }
 
-      button:hover:not(:disabled) { filter: brightness(1.04); }
-      button:disabled { opacity: 0.48; cursor: default; }
+      button:hover:not(:disabled) {
+        filter: brightness(1.04);
+      }
+      button:disabled {
+        opacity: 0.48;
+        cursor: default;
+      }
 
       button.sec {
         background: var(--card);
@@ -250,10 +298,23 @@
         margin: 22px 2px 10px;
       }
 
-      .queue-head h2 { margin: 0; font-size: 1rem; }
-      #summary { color: var(--mute); font-size: 0.88rem; text-align: right; }
+      .queue-head h2 {
+        margin: 0;
+        font-size: 1rem;
+      }
+      #summary {
+        color: var(--mute);
+        font-size: 0.88rem;
+        text-align: right;
+      }
 
-      ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 9px;
+      }
 
       li {
         display: grid;
@@ -266,7 +327,9 @@
         background: var(--card);
       }
 
-      .file-main { min-width: 0; }
+      .file-main {
+        min-width: 0;
+      }
 
       .file-top {
         display: flex;
@@ -304,9 +367,15 @@
         font-size: 0.82rem;
       }
 
-      .status-good { color: var(--good); }
-      .status-warn { color: var(--warn); }
-      .status-error { color: var(--danger); }
+      .status-good {
+        color: var(--good);
+      }
+      .status-warn {
+        color: var(--warn);
+      }
+      .status-error {
+        color: var(--danger);
+      }
 
       .file-actions {
         display: flex;
@@ -321,7 +390,9 @@
         white-space: nowrap;
       }
 
-      .download-link:hover { text-decoration: underline; }
+      .download-link:hover {
+        text-decoration: underline;
+      }
 
       .remove {
         min-width: 34px;
@@ -361,12 +432,26 @@
       }
 
       @media (max-width: 700px) {
-        main { width: min(100% - 22px, 920px); padding-top: 24px; }
-        header { flex-direction: column; gap: 12px; }
-        .settings-grid { grid-template-columns: 1fr; }
-        .queue-head { align-items: flex-start; }
-        li { grid-template-columns: 1fr; }
-        .file-actions { justify-content: space-between; }
+        main {
+          width: min(100% - 22px, 920px);
+          padding-top: 24px;
+        }
+        header {
+          flex-direction: column;
+          gap: 12px;
+        }
+        .settings-grid {
+          grid-template-columns: 1fr;
+        }
+        .queue-head {
+          align-items: flex-start;
+        }
+        li {
+          grid-template-columns: 1fr;
+        }
+        .file-actions {
+          justify-content: space-between;
+        }
       }
     </style>
   </head>
@@ -376,7 +461,8 @@
         <div>
           <h1>File Converter</h1>
           <p class="sub">
-            Image and audio conversion happens on your device. Your files are never uploaded.
+            Image and audio conversion happens on your device. Your files are
+            never uploaded.
           </p>
         </div>
         <div class="badge" title="Conversion runs locally in your browser">
@@ -437,7 +523,10 @@
                 </select>
               </div>
             </div>
-            <p class="hint" id="audioHint">MP3 uses the lamejs encoder loaded from cdnjs; WAV works without it.</p>
+            <p class="hint" id="audioHint">
+              MP3 uses the lamejs encoder loaded from cdnjs; WAV works without
+              it.
+            </p>
           </div>
         </div>
 
@@ -456,6 +545,10 @@
       <div id="empty" class="empty">Your conversion queue is empty.</div>
       <ul id="list" aria-label="Files to convert"></ul>
       <div id="live" class="sr-only" aria-live="polite"></div>
+
+      <div>
+        <p class="sub">Created by Ehsan Ashour Zadeh, for personal use.</p>
+      </div>
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
@@ -516,7 +609,11 @@
         it.out = null;
         it.download.replaceChildren();
         it.outputMeta.textContent = "";
-        setItemStatus(it, stale ? "Settings changed — convert again" : "Ready", stale ? "status-warn" : "");
+        setItemStatus(
+          it,
+          stale ? "Settings changed — convert again" : "Ready",
+          stale ? "status-warn" : "",
+        );
       }
 
       function invalidateOutputs() {
@@ -527,7 +624,9 @@
             changed = true;
           }
         }
-        if (changed) live.textContent = "Conversion settings changed. Existing results were cleared.";
+        if (changed)
+          live.textContent =
+            "Conversion settings changed. Existing results were cleared.";
         refresh();
       }
 
@@ -535,7 +634,9 @@
         const png = imgSelect.value === "png";
         quality.disabled = png || busy;
         $("#qbox").style.opacity = png ? "0.5" : "1";
-        $("#imageHint").textContent = png ? "PNG is lossless, so quality does not apply." : "Quality applies to WebP and JPEG.";
+        $("#imageHint").textContent = png
+          ? "PNG is lossless, so quality does not apply."
+          : "Quality applies to WebP and JPEG.";
 
         const mp3 = audSelect.value === "mp3";
         bitrate.disabled = !mp3 || busy;
@@ -543,7 +644,8 @@
 
         const audioHint = $("#audioHint");
         if (mp3 && !window.lamejs) {
-          audioHint.textContent = "MP3 encoder is unavailable. Check your internet connection or choose WAV.";
+          audioHint.textContent =
+            "MP3 encoder is unavailable. Check your internet connection or choose WAV.";
           audioHint.classList.add("warning");
         } else {
           audioHint.textContent = mp3
@@ -569,7 +671,9 @@
           summary.textContent = "No files added";
         } else {
           const part = `${items.length} file${items.length === 1 ? "" : "s"} · ${formatBytes(totalBytes)}`;
-          summary.textContent = converted ? `${part} · ${converted} converted` : part;
+          summary.textContent = converted
+            ? `${part} · ${converted} converted`
+            : part;
         }
 
         updateControlVisibility();
@@ -624,7 +728,17 @@
         actions.append(download, remove);
         li.append(main, actions);
 
-        const it = { file, kind, li, status, outputMeta, download, remove, out: null, url: null };
+        const it = {
+          file,
+          kind,
+          li,
+          status,
+          outputMeta,
+          download,
+          remove,
+          out: null,
+          url: null,
+        };
 
         remove.onclick = () => {
           revokeItemUrl(it);
@@ -691,7 +805,8 @@
         const len = n * ch * 2;
         const ab = new ArrayBuffer(44 + len);
         const v = new DataView(ab);
-        const s = (o, t) => [...t].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+        const s = (o, t) =>
+          [...t].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
 
         s(0, "RIFF");
         v.setUint32(4, 36 + len, true);
@@ -719,7 +834,10 @@
       }
 
       function toMp3(buf) {
-        if (!window.lamejs) throw new Error("MP3 encoder unavailable. Check your connection or choose WAV.");
+        if (!window.lamejs)
+          throw new Error(
+            "MP3 encoder unavailable. Check your connection or choose WAV.",
+          );
 
         const ch = Math.min(2, buf.numberOfChannels);
         const kbps = Number(bitrate.value);
@@ -739,9 +857,13 @@
         const out = [];
 
         for (let i = 0; i < L.length; i += 1152) {
-          const part = ch > 1
-            ? enc.encodeBuffer(L.subarray(i, i + 1152), R.subarray(i, i + 1152))
-            : enc.encodeBuffer(L.subarray(i, i + 1152));
+          const part =
+            ch > 1
+              ? enc.encodeBuffer(
+                  L.subarray(i, i + 1152),
+                  R.subarray(i, i + 1152),
+                )
+              : enc.encodeBuffer(L.subarray(i, i + 1152));
           if (part.length) out.push(part);
         }
 
@@ -768,17 +890,25 @@
           bmp.close?.();
 
           const type = `image/${fmt}`;
-          const blob = await new Promise((resolve) => canvas.toBlob(resolve, type, q));
-          if (!blob || blob.type !== type) throw new Error(`${fmt.toUpperCase()} is not supported in this browser.`);
+          const blob = await new Promise((resolve) =>
+            canvas.toBlob(resolve, type, q),
+          );
+          if (!blob || blob.type !== type)
+            throw new Error(
+              `${fmt.toUpperCase()} is not supported in this browser.`,
+            );
           return [blob, fmt === "jpeg" ? "jpg" : fmt];
         }
 
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) throw new Error("Audio conversion is not supported in this browser.");
+        if (!AudioCtx)
+          throw new Error("Audio conversion is not supported in this browser.");
         const ctx = new AudioCtx();
         try {
           const buf = await ctx.decodeAudioData(await file.arrayBuffer());
-          return audSelect.value === "mp3" ? [toMp3(buf), "mp3"] : [toWav(buf), "wav"];
+          return audSelect.value === "mp3"
+            ? [toMp3(buf), "mp3"]
+            : [toWav(buf), "wav"];
         } finally {
           await ctx.close().catch(() => {});
         }
@@ -788,7 +918,8 @@
         const base = file.name.replace(/\.[^.]+$/, "") || "converted";
         let name = `${base}.${ext}`;
         let n = 1;
-        while (usedNames.has(name.toLowerCase())) name = `${base} (${n++}).${ext}`;
+        while (usedNames.has(name.toLowerCase()))
+          name = `${base} (${n++}).${ext}`;
         usedNames.add(name.toLowerCase());
         return name;
       }
@@ -807,9 +938,10 @@
 
         const delta = blob.size - it.file.size;
         const pct = it.file.size ? Math.abs((delta / it.file.size) * 100) : 0;
-        const comparison = delta === 0
-          ? "same size"
-          : `${pct.toFixed(pct >= 10 ? 0 : 1)}% ${delta < 0 ? "smaller" : "larger"}`;
+        const comparison =
+          delta === 0
+            ? "same size"
+            : `${pct.toFixed(pct >= 10 ? 0 : 1)}% ${delta < 0 ? "smaller" : "larger"}`;
 
         it.outputMeta.textContent = `→ ${formatBytes(blob.size)} · ${comparison}`;
         setItemStatus(it, "Converted", "status-good");
@@ -838,7 +970,11 @@
             showOutput(it, blob, outName, ext);
             success++;
           } catch (err) {
-            setItemStatus(it, err?.message || "Conversion failed", "status-error");
+            setItemStatus(
+              it,
+              err?.message || "Conversion failed",
+              "status-error",
+            );
           }
         }
 
@@ -871,7 +1007,8 @@
         const t = new Uint32Array(256);
         for (let n = 0; n < 256; n++) {
           let c = n;
-          for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+          for (let k = 0; k < 8; k++)
+            c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
           t[n] = c >>> 0;
         }
         return t;
@@ -879,7 +1016,8 @@
 
       function crc32(u) {
         let c = 0xffffffff;
-        for (let i = 0; i < u.length; i++) c = crcT[(c ^ u[i]) & 255] ^ (c >>> 8);
+        for (let i = 0; i < u.length; i++)
+          c = crcT[(c ^ u[i]) & 255] ^ (c >>> 8);
         return (c ^ 0xffffffff) >>> 0;
       }
 
@@ -928,7 +1066,9 @@
         end.setUint32(12, cdSize, true);
         end.setUint32(16, off, true);
 
-        return new Blob([...parts, ...cd, end.buffer], { type: "application/zip" });
+        return new Blob([...parts, ...cd, end.buffer], {
+          type: "application/zip",
+        });
       }
 
       dl.onclick = async () => {
@@ -944,7 +1084,10 @@
         refresh();
         dl.textContent = "Preparing ZIP…";
         try {
-          const files = done.map((i) => ({ name: i.out.name, blob: i.out.blob }));
+          const files = done.map((i) => ({
+            name: i.out.name,
+            blob: i.out.blob,
+          }));
           save(await makeZip(files), "converted-files.zip");
           live.textContent = `ZIP prepared with ${files.length} files.`;
         } finally {
@@ -954,7 +1097,9 @@
         }
       };
 
-      window.addEventListener("beforeunload", () => items.forEach(revokeItemUrl));
+      window.addEventListener("beforeunload", () =>
+        items.forEach(revokeItemUrl),
+      );
       updateControlVisibility();
       refresh();
     </script>
